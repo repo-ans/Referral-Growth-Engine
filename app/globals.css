@@ -3,6 +3,9 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* Validated categorical pair (see dataviz skill palette.md, slots 1 & 2) */
+  --chart-clicks: #2a78d6;
+  --chart-referrals: #1baf7a;
 }
 
 @theme inline {
@@ -16,6 +19,8 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --chart-clicks: #3987e5;
+    --chart-referrals: #199e70;
   }
 }
 
