@@ -70,8 +70,11 @@ export function ReferralsTable({ referrals }: { referrals: Referral[] }) {
     setPage(1);
   }
 
+  const rangeStart = filtered.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1;
+  const rangeEnd = Math.min(currentPage * PAGE_SIZE, filtered.length);
+
   return (
-    <div className="rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+    <div className="rounded-lg border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
       <div className="flex flex-col gap-3 border-b border-zinc-200 p-4 dark:border-zinc-800 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative w-full sm:max-w-xs">
           <SearchIcon className="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-zinc-400" />
@@ -93,7 +96,7 @@ export function ReferralsTable({ referrals }: { referrals: Referral[] }) {
               className={
                 "cursor-pointer rounded-md px-2.5 py-1 text-xs font-medium " +
                 (filter === key
-                  ? "bg-zinc-950 text-white dark:bg-white dark:text-zinc-950"
+                  ? "bg-(--brand-navy) text-white"
                   : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900")
               }
             >
@@ -103,11 +106,16 @@ export function ReferralsTable({ referrals }: { referrals: Referral[] }) {
         </div>
       </div>
 
-      <div className="px-4 pt-3 pb-1 text-xs text-zinc-500">
-        Referrals{" "}
-        <span className="ml-1 font-medium text-zinc-700 dark:text-zinc-300">
-          {filtered.length} total
-        </span>
+      <div className="flex items-center justify-between px-4 pt-3 pb-1">
+        <p className="text-sm font-bold text-(--brand-navy)">
+          Referrals{" "}
+          <span className="ml-1 text-xs font-medium text-zinc-500">
+            {filtered.length} total
+          </span>
+        </p>
+        <p className="text-xs text-zinc-500">
+          Page {currentPage} / {totalPages}
+        </p>
       </div>
 
       <div className="overflow-x-auto">
@@ -165,7 +173,7 @@ export function ReferralsTable({ referrals }: { referrals: Referral[] }) {
           <ChevronLeftIcon className="h-3.5 w-3.5" /> Prev
         </button>
         <span>
-          Page {currentPage} / {totalPages}
+          {rangeStart}-{rangeEnd} of {filtered.length}
         </span>
         <button
           type="button"

@@ -29,7 +29,9 @@ export default async function DashboardPage() {
     <div className="mx-auto w-full max-w-6xl flex-1 px-6 py-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Dashboard</h1>
+          <h1 className="text-2xl font-bold text-(--brand-navy)">
+            Referral Dashboard
+          </h1>
           {profile && (
             <p className="mt-0.5 text-sm text-zinc-500">
               Welcome back, {profile.first_name}
@@ -40,7 +42,7 @@ export default async function DashboardPage() {
       </div>
 
       {referralUrl && (
-        <div className="mt-6 rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
+        <div className="mt-6 rounded-lg border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
           <p className="text-xs font-semibold tracking-wide text-zinc-500 uppercase">
             Your referral link
           </p>
@@ -54,6 +56,7 @@ export default async function DashboardPage() {
           label="Total Clicks"
           value={stats.clickCount.toLocaleString()}
           sub={`${stats.clicksThisWeek} this week`}
+          tone="blue"
           delta={
             clicksDelta === null
               ? undefined
@@ -65,6 +68,7 @@ export default async function DashboardPage() {
           label="Total Referrals"
           value={stats.referralCount.toLocaleString()}
           sub={`${stats.referralsThisWeek} this week`}
+          tone="violet"
           delta={
             referralsDelta === null
               ? undefined
@@ -76,12 +80,14 @@ export default async function DashboardPage() {
           label="Conversion Rate"
           value={`${stats.conversionRate.toFixed(1)}%`}
           sub="clicks → signups"
+          tone="teal"
         />
         <StatCard
           icon={<CalendarIcon className="h-4.5 w-4.5" />}
           label="Referrals This Week"
           value={stats.referralsThisWeek.toLocaleString()}
           sub={`${stats.clicksThisWeek} clicks this week`}
+          tone="orange"
         />
       </div>
 
@@ -92,6 +98,11 @@ export default async function DashboardPage() {
       <div className="mt-6">
         <ReferralsTable referrals={stats.referrals} />
       </div>
+
+      <footer className="mt-10 border-t border-zinc-200 py-4 text-xs text-zinc-500 dark:border-zinc-800">
+        © {new Date().getFullYear()} Grande Air Solutions · Austin, TX ·
+        Residential HVAC
+      </footer>
     </div>
   );
 }

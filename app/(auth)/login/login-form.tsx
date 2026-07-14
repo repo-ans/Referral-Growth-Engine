@@ -5,7 +5,7 @@ import { login } from "@/lib/actions/auth";
 import type { LoginFormState } from "@/lib/definitions";
 
 const inputClasses =
-  "mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900";
+  "mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30 dark:border-zinc-700 dark:bg-zinc-900";
 const errorClasses = "mt-1 text-sm text-red-600";
 
 export function LoginForm() {
@@ -53,7 +53,7 @@ export function LoginForm() {
       <button
         type="submit"
         disabled={pending}
-        className="mt-2 cursor-pointer rounded-md bg-zinc-950 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-zinc-950"
+        className="mt-2 cursor-pointer rounded-md bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {pending ? "Logging in…" : "Log in"}
       </button>

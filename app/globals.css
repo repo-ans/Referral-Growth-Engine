@@ -3,9 +3,24 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  /* Validated categorical pair (see dataviz skill palette.md, slots 1 & 2) */
-  --chart-clicks: #2a78d6;
-  --chart-referrals: #1baf7a;
+
+  /* Grande Air Solutions brand tokens */
+  --brand-navy: #1e293b;
+  --brand-navy-soft: #334155;
+  --brand-orange: #f97316;
+  --brand-orange-soft: #fff7ed;
+  --brand-teal: #0d9488;
+
+  /* Chart series pair. Deliberately brand-matched navy + teal rather
+     than the dataviz skill's stock categorical slots: CVD separation
+     and surface contrast both pass with a wide margin (validated via
+     validate_palette.js), but pure navy reads as near-black, so it
+     fails the tool's lightness/chroma bands for a "categorical hue".
+     Mitigated per the skill's own relief rule: legend + hover value
+     labels + a table-view toggle are always present on this chart, so
+     identity never depends on the swatch color alone. */
+  --chart-clicks: #1e293b;
+  --chart-referrals: #0d9488;
 }
 
 @theme inline {
@@ -19,8 +34,13 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
-    --chart-clicks: #3987e5;
-    --chart-referrals: #199e70;
+    --brand-navy: #cbd5e1;
+    --brand-navy-soft: #94a3b8;
+    --brand-orange: #fb923c;
+    --brand-orange-soft: #431407;
+    --brand-teal: #2dd4bf;
+    --chart-clicks: #60a5fa;
+    --chart-referrals: #2dd4bf;
   }
 }
 
