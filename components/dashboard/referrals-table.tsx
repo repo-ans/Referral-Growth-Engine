@@ -41,6 +41,7 @@ function inRange(dateStr: string, filter: TimeFilter) {
 }
 
 export function ReferralsTable({ referrals }: { referrals: Referral[] }) {
+  console.log(referrals, 'referrals')
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<TimeFilter>("all");
   const [page, setPage] = useState(1);

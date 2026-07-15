@@ -104,14 +104,14 @@ export function ReferralLinkReveal({
 
         <div className="flex min-w-0 flex-1 flex-col gap-3">
           <div className="flex items-center gap-2">
-            <p className="min-w-0 flex-1 truncate rounded-md border border-zinc-300 bg-zinc-50 px-3 py-2 font-mono text-sm dark:border-zinc-700 dark:bg-zinc-900">
+            <p className="min-w-0 flex-1 truncate rounded-xl border border-slate-200 bg-zinc-50 px-3 py-2 font-mono text-sm dark:border-zinc-700 dark:bg-zinc-900">
               {referralUrl}
             </p>
             <button
               type="button"
               onClick={handleCopy}
               aria-label="Copy referral link"
-              className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-md border border-zinc-300 text-zinc-600 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 shadow-sm transition-all active:scale-95 cursor-pointer"
             >
               {copied ? (
                 <CheckIcon className="h-4 w-4 text-green-600" />
@@ -129,7 +129,7 @@ export function ReferralLinkReveal({
             <a
               href={qrCodeDataUrl}
               download="referral-qr-code.png"
-              className="flex items-center gap-1.5 rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 shadow-sm transition-all active:scale-95 cursor-pointer"
             >
               <DownloadIcon className="h-3.5 w-3.5" />
               Download QR code
@@ -139,7 +139,7 @@ export function ReferralLinkReveal({
               <button
                 type="button"
                 onClick={handleShare}
-                className="flex cursor-pointer items-center gap-1.5 rounded-md border border-zinc-300 px-3 py-1.5 text-xs font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 shadow-sm transition-all active:scale-95 cursor-pointer"
               >
                 <ShareIcon className="h-3.5 w-3.5" />
                 Share
