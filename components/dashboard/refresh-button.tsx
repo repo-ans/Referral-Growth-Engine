@@ -12,7 +12,7 @@ export function RefreshButton() {
     <button
       type="button"
       onClick={() => startTransition(() => router.refresh())}
-      className="flex cursor-pointer items-center gap-1.5 rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+      className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 shadow-sm transition-all active:scale-95 cursor-pointer"
       disabled={isPending}
     >
       <RefreshIcon className={"h-4 w-4" + (isPending ? " animate-spin" : "")} />

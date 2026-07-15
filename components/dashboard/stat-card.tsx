@@ -31,7 +31,7 @@ export function StatCard({
     delta && (delta.goodDirection === "up") === delta.percent >= 0;
 
   return (
-    <div className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+    <div className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 hover:shadow-md transition-shadow duration-200">
       <div className="flex items-start justify-between gap-2">
         <span
           className={`flex h-8 w-8 items-center justify-center rounded-md ${TONE_CLASSES[tone]}`}
