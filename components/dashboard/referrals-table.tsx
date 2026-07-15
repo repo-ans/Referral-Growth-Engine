@@ -83,21 +83,21 @@ export function ReferralsTable({ referrals }: { referrals: Referral[] }) {
             placeholder="Search by name…"
             value={search}
             onChange={(e) => updateSearch(e.target.value)}
-            className="w-full rounded-md border border-zinc-300 py-1.5 pr-3 pl-8 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+            className="w-full pl-9 pr-8 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 bg-slate-50 placeholder-slate-400"
           />
         </div>
 
-        <div className="flex flex-wrap gap-1.5">
+        <div className="inline-flex flex-wrap gap-1 rounded-full bg-slate-100 p-1">
           {(Object.keys(FILTER_LABELS) as TimeFilter[]).map((key) => (
             <button
               key={key}
               type="button"
               onClick={() => updateFilter(key)}
               className={
-                "cursor-pointer rounded-md px-2.5 py-1 text-xs font-medium " +
+                "cursor-pointer rounded-full px-3 py-1.5 text-sm transition-colors " +
                 (filter === key
-                  ? "bg-(--brand-navy) text-white"
-                  : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-900")
+                  ? "bg-white font-semibold text-slate-900 shadow-sm"
+                  : "font-medium text-slate-500 hover:text-slate-700")
               }
             >
               {FILTER_LABELS[key]}

@@ -37,7 +37,7 @@ export default async function DashboardPage() {
     <div className="mx-auto w-full max-w-6xl flex-1 px-6 py-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-(--brand-navy)">
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight">
             Referral Dashboard
           </h1>
           {profile && (

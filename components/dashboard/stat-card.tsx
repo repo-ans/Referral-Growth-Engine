@@ -38,17 +38,17 @@ export function StatCard({
         >
           {icon}
         </span>
-        <span className="text-right text-[11px] font-semibold tracking-wide text-zinc-500 uppercase">
+        <span className="text-right text-xs font-semibold text-slate-400 uppercase tracking-wider leading-tight">
           {label}
         </span>
       </div>
 
-      <p className="mt-3 text-2xl font-bold text-(--brand-navy) tabular-nums">
+      <p className="mt-3 text-3xl font-black text-slate-900 leading-none tracking-tight tabular-nums">
         {value}
       </p>
 
       <div className="mt-1 flex items-center gap-1.5">
-        {sub && <p className="text-xs text-zinc-500">{sub}</p>}
+        {sub && <p className="text-xs text-slate-400 mt-1">{sub}</p>}
         {delta && (
           <span
             className={
