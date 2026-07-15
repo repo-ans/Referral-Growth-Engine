@@ -24,6 +24,9 @@ export default async function DashboardPage() {
     ? await QRCode.toDataURL(referralUrl, { margin: 1, width: 256 })
     : null;
 
+    console.log(referralUrl, 'referralUrl')
+    console.log(qrCodeDataUrl, 'qrCodeDataUrl')
+
   const clicksDelta = percentDelta(stats.clicksThisWeek, stats.clicksLastWeek);
   const referralsDelta = percentDelta(
     stats.referralsThisWeek,
