@@ -118,3 +118,51 @@ export function ChartIcon(props: SVGProps<SVGSVGElement>) {
     </Icon>
   );
 }
+
+export function LinkIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <path d="M10 14a4 4 0 0 0 5.66 0l2.83-2.83a4 4 0 1 0-5.66-5.66L11.5 6.84" />
+      <path d="M14 10a4 4 0 0 0-5.66 0L5.51 12.83a4 4 0 1 0 5.66 5.66L12.5 17.16" />
+    </Icon>
+  );
+}
+
+export function CopyIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <rect x="8.5" y="8.5" width="11" height="11" rx="2" />
+      <path d="M5.5 15.5h-1a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+    </Icon>
+  );
+}
+
+export function CheckIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <path d="M5 13l4 4L19 7" />
+    </Icon>
+  );
+}
+
+export function DownloadIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <path d="M12 4v11" />
+      <path d="m7.5 11.5 4.5 4.5 4.5-4.5" />
+      <path d="M5 19.5h14" />
+    </Icon>
+  );
+}
+
+export function ShareIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <circle cx="18" cy="5.5" r="2.25" />
+      <circle cx="6" cy="12" r="2.25" />
+      <circle cx="18" cy="18.5" r="2.25" />
+      <path d="M8 10.7 16 6.7" />
+      <path d="M8 13.3 16 17.3" />
+    </Icon>
+  );
+}

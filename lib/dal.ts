@@ -23,7 +23,7 @@ export const getProfile = cache(async () => {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("first_name, last_name, referral_code")
+    .select("first_name, last_name, referral_code, ghl_contact_id")
     .eq("id", user.id)
     .single();
 
@@ -58,7 +58,9 @@ function emptyStats() {
 export const getReferralStats = cache(async () => {
   const profile = await getProfile();
 
-  if (!profile) {
+  // Pre-GHL-linking accounts (registered before 004_ghl_contact_linking.sql)
+  // have no ghl_contact_id, so there's no referral link to have clicks on.
+  if (!profile || !profile.ghl_contact_id) {
     return emptyStats();
   }
 
@@ -68,7 +70,7 @@ export const getReferralStats = cache(async () => {
     supabase
       .from("referral_clicks")
       .select("clicked_at")
-      .eq("referral_code", profile.referral_code),
+      .eq("ghl_contact_id", profile.ghl_contact_id),
     supabase.rpc("get_my_referrals"),
   ]);
 

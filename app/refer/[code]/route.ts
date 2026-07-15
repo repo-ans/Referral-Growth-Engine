@@ -8,19 +8,20 @@ export async function GET(
   const { code } = await params;
   const supabase = await createClient();
 
-  // referral_codes is a public view exposing only id + referral_code —
-  // never the profiles table directly, which also holds name/phone.
+  // referral_codes is a public view exposing only id + referral_code +
+  // ghl_contact_id — never the profiles table directly, which also
+  // holds name/phone. The referral link is keyed on ghl_contact_id.
   const { data: referral } = await supabase
     .from("referral_codes")
-    .select("referral_code")
-    .eq("referral_code", code)
+    .select("ghl_contact_id")
+    .eq("ghl_contact_id", code)
     .maybeSingle();
 
   if (!referral) {
     return NextResponse.redirect(new URL("/register", request.url));
   }
 
-  await supabase.from("referral_clicks").insert({ referral_code: code });
+  await supabase.from("referral_clicks").insert({ ghl_contact_id: code });
 
   return NextResponse.redirect(
     new URL(`/register?ref=${code}`, request.url)

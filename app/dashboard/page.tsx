@@ -1,9 +1,11 @@
+import QRCode from "qrcode";
 import { getProfile, getReferralStats } from "@/lib/dal";
 import { percentDelta } from "@/lib/weekly";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { WeeklyVolumeChart } from "@/components/dashboard/weekly-volume-chart";
 import { ReferralsTable } from "@/components/dashboard/referrals-table";
 import { RefreshButton } from "@/components/dashboard/refresh-button";
+import { ReferralLinkReveal } from "@/components/dashboard/referral-link-reveal";
 import {
   CursorClickIcon,
   UsersIcon,
@@ -15,8 +17,11 @@ export default async function DashboardPage() {
   const profile = await getProfile();
   const stats = await getReferralStats();
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
-  const referralUrl = profile
-    ? `${siteUrl}/refer/${profile.referral_code}`
+  const referralUrl = profile?.ghl_contact_id
+    ? `${siteUrl}/refer/${profile.ghl_contact_id}`
+    : null;
+  const qrCodeDataUrl = referralUrl
+    ? await QRCode.toDataURL(referralUrl, { margin: 1, width: 256 })
     : null;
 
   const clicksDelta = percentDelta(stats.clicksThisWeek, stats.clicksLastWeek);
@@ -41,13 +46,8 @@ export default async function DashboardPage() {
         <RefreshButton />
       </div>
 
-      {referralUrl && (
-        <div className="mt-6 rounded-lg border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-          <p className="text-xs font-semibold tracking-wide text-zinc-500 uppercase">
-            Your referral link
-          </p>
-          <p className="mt-1 font-mono text-sm break-all">{referralUrl}</p>
-        </div>
+      {referralUrl && qrCodeDataUrl && (
+        <ReferralLinkReveal referralUrl={referralUrl} qrCodeDataUrl={qrCodeDataUrl} />
       )}
 
       <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
