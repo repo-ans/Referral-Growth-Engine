@@ -1,5 +1,4 @@
 import { logout } from "@/lib/actions/auth";
-import { BrandMark } from "@/components/brand-mark";
 import { LogOutIcon } from "./icons";
 import Image from "next/image";
 import logo from '@/public/isael logo.webp'
@@ -8,8 +7,7 @@ export function Navbar() {
   return (
     <header className="border-b-2 border-[#e05728] bg-[#eff4f7] dark:bg-zinc-950">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-        {/* <BrandMark /> */}
-<Image
+        <Image
           className=""
           src={logo.src}
           alt="Isael logo"

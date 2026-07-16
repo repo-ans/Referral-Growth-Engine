@@ -95,18 +95,23 @@ async function createGhlContact(input: {
 
 // Phone first, then email, per the referral program's dedup order.
 // Creates a new GHL contact if neither matches.
+//
+// isExistingContact is the partner signal: any contact already in GHL
+// (e.g. the realtors manually onboarded there in Stage 0) is treated as
+// a partner; anyone with no prior GHL contact is a fresh, non-partner
+// signup and gets a brand-new contact created for them.
 export async function resolveGhlContactId(input: {
   firstName: string;
   lastName: string;
   email: string;
   phone: string;
-}): Promise<string> {
+}): Promise<{ contactId: string; isExistingContact: boolean }> {
   const byPhone = await findGhlContact("number", input.phone);
-  if (byPhone) return byPhone.id;
+  if (byPhone) return { contactId: byPhone.id, isExistingContact: true };
 
   const byEmail = await findGhlContact("email", input.email);
-  if (byEmail) return byEmail.id;
+  if (byEmail) return { contactId: byEmail.id, isExistingContact: true };
 
   const created = await createGhlContact(input);
-  return created.id;
+  return { contactId: created.id, isExistingContact: false };
 }
