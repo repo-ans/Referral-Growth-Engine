@@ -155,6 +155,24 @@ export function DownloadIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function CheckCircleIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="m8.5 12 2.5 2.5 4.5-5" />
+    </Icon>
+  );
+}
+
+export function DollarIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Icon {...props}>
+      <line x1="12" y1="3" x2="12" y2="21" />
+      <path d="M16 7.5c0-1.7-1.8-3-4-3s-4 1.1-4 2.75S9.8 10 12 10s4 .8 4 2.75S14.2 15.5 12 15.5s-4-1.3-4-3" />
+    </Icon>
+  );
+}
+
 export function ShareIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <Icon {...props}>

@@ -103,3 +103,91 @@ export const getReferralStats = cache(async () => {
     referrals,
   };
 });
+
+// Booked/paid job counts from the commission engine (003_commission_engine.sql).
+// Only populated once the n8n booked->paid flow starts writing rows —
+// until then this always returns zeros, which is correct: nobody has
+// booked or paid jobs yet, not an error state.
+export const getFunnelStats = cache(async () => {
+  const user = await verifySession();
+  const supabase = await createClient();
+
+  const { data } = await supabase
+    .from("referrals")
+    .select("status")
+    .eq("partner_id", user.id);
+
+  const rows = data ?? [];
+
+  return {
+    // "Booked" counts the whole funnel from that stage on, so it never
+    // reads lower than "paid" (a paid job was booked first).
+    totalBooked: rows.filter((r) => r.status === "booked" || r.status === "paid").length,
+    totalPaid: rows.filter((r) => r.status === "paid").length,
+  };
+});
+
+export type PartnerTier = "bronze" | "silver" | "gold";
+
+// Only exists for users the signup flow recognized as a partner (an
+// existing GHL contact at registration time — see
+// supabase/006_partner_detection.sql). Returns null for everyone else,
+// which the dashboard uses to hide partner-only sections entirely
+// rather than showing them empty.
+export const getPartner = cache(async () => {
+  const user = await verifySession();
+  const supabase = await createClient();
+
+  const { data } = await supabase
+    .from("partners")
+    .select("tier, payout_method, status")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  return data as {
+    tier: PartnerTier;
+    payout_method: "ach" | "zelle" | "paypal" | null;
+    status: "active" | "inactive";
+  } | null;
+});
+
+type Commission = {
+  commission_amount: number;
+  status: "pending" | "approved" | "paid" | "clawed_back";
+  payout_date: string | null;
+  created_at: string;
+};
+
+function emptyEarnings() {
+  return { pending: 0, approved: 0, paid: 0, commissions: [] as Commission[] };
+}
+
+// Commission totals + history from the commission engine
+// (003_commission_engine.sql). Same story as getFunnelStats: the
+// numbers are correct, just zero, until n8n starts writing rows.
+export const getEarnings = cache(async () => {
+  const partner = await getPartner();
+  if (!partner) return emptyEarnings();
+
+  const user = await verifySession();
+  const supabase = await createClient();
+
+  const { data } = await supabase
+    .from("commissions")
+    .select("commission_amount, status, payout_date, created_at")
+    .eq("partner_id", user.id)
+    .order("created_at", { ascending: false });
+
+  const commissions = (data ?? []) as Commission[];
+  const sumByStatus = (status: Commission["status"]) =>
+    commissions
+      .filter((c) => c.status === status)
+      .reduce((total, c) => total + Number(c.commission_amount), 0);
+
+  return {
+    pending: sumByStatus("pending"),
+    approved: sumByStatus("approved"),
+    paid: sumByStatus("paid"),
+    commissions,
+  };
+});

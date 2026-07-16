@@ -1,21 +1,33 @@
 import QRCode from "qrcode";
-import { getProfile, getReferralStats } from "@/lib/dal";
+import {
+  getProfile,
+  getReferralStats,
+  getFunnelStats,
+  getPartner,
+  getEarnings,
+} from "@/lib/dal";
 import { percentDelta } from "@/lib/weekly";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { WeeklyVolumeChart } from "@/components/dashboard/weekly-volume-chart";
 import { ReferralsTable } from "@/components/dashboard/referrals-table";
 import { RefreshButton } from "@/components/dashboard/refresh-button";
 import { ReferralLinkReveal } from "@/components/dashboard/referral-link-reveal";
+import { EarningsPanel } from "@/components/dashboard/earnings-panel";
 import {
   CursorClickIcon,
   UsersIcon,
   PercentIcon,
   CalendarIcon,
+  CheckCircleIcon,
+  DollarIcon,
 } from "@/components/dashboard/icons";
 
 export default async function DashboardPage() {
   const profile = await getProfile();
   const stats = await getReferralStats();
+  const funnel = await getFunnelStats();
+  const partner = await getPartner();
+  const earnings = partner ? await getEarnings() : null;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
   const referralUrl = profile?.ghl_contact_id
     ? `${siteUrl}/refer/${profile.ghl_contact_id}`
@@ -51,7 +63,7 @@ export default async function DashboardPage() {
         <ReferralLinkReveal referralUrl={referralUrl} qrCodeDataUrl={qrCodeDataUrl} />
       )}
 
-      <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-6">
         <StatCard
           icon={<CursorClickIcon className="h-4.5 w-4.5" />}
           label="Total Clicks"
@@ -63,6 +75,20 @@ export default async function DashboardPage() {
               ? undefined
               : { percent: clicksDelta, goodDirection: "up" }
           }
+        />
+        <StatCard
+          icon={<CheckCircleIcon className="h-4.5 w-4.5" />}
+          label="Total Booked"
+          value={funnel.totalBooked.toLocaleString()}
+          sub="jobs booked"
+          tone="orange"
+        />
+        <StatCard
+          icon={<DollarIcon className="h-4.5 w-4.5" />}
+          label="Total Paid"
+          value={funnel.totalPaid.toLocaleString()}
+          sub="invoices paid"
+          tone="green"
         />
         <StatCard
           icon={<UsersIcon className="h-4.5 w-4.5" />}
@@ -88,9 +114,21 @@ export default async function DashboardPage() {
           label="Referrals This Week"
           value={stats.referralsThisWeek.toLocaleString()}
           sub={`${stats.clicksThisWeek} clicks this week`}
-          tone="orange"
+          tone="slate"
         />
       </div>
+
+      {partner && earnings && (
+        <div className="mt-6">
+          <EarningsPanel
+            tier={partner.tier}
+            pending={earnings.pending}
+            approved={earnings.approved}
+            paid={earnings.paid}
+            commissions={earnings.commissions}
+          />
+        </div>
+      )}
 
       <div className="mt-6">
         <WeeklyVolumeChart data={stats.weeklyVolume} />

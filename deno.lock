@@ -11,15 +11,18 @@
   "workspace": {
     "packageJson": {
       "dependencies": [
+        "npm:@netlify/plugin-nextjs@^5.15.12",
         "npm:@supabase/ssr@~0.12.1",
         "npm:@supabase/supabase-js@^2.110.3",
         "npm:@tailwindcss/postcss@4",
         "npm:@types/node@20",
+        "npm:@types/qrcode@^1.5.6",
         "npm:@types/react-dom@19",
         "npm:@types/react@19",
         "npm:eslint-config-next@16.2.10",
         "npm:eslint@9",
         "npm:next@16.2.10",
+        "npm:qrcode@^1.5.4",
         "npm:react-dom@19.2.4",
         "npm:react@19.2.4",
         "npm:tailwindcss@4",
