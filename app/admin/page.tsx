@@ -1,4 +1,5 @@
 import { getAdminOverview } from "@/lib/admin-dal";
+import { verifySession } from "@/lib/dal";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { DirectoryTable } from "@/components/admin/directory-table";
 import { PartnersTable } from "@/components/admin/partners-table";
@@ -10,6 +11,7 @@ import {
 } from "@/components/dashboard/icons";
 
 export default async function AdminPage() {
+  const user = await verifySession();
   const { directory, partners, totals } = await getAdminOverview();
 
   return (
@@ -52,7 +54,7 @@ export default async function AdminPage() {
       </div>
 
       <div className="mt-6">
-        <DirectoryTable rows={directory} />
+        <DirectoryTable rows={directory} currentUserId={user.id} />
       </div>
 
       <div className="mt-6">

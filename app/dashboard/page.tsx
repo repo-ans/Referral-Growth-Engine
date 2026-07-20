@@ -65,7 +65,7 @@ export default async function DashboardPage() {
         <ReferralLinkReveal referralUrl={referralUrl} qrCodeDataUrl={qrCodeDataUrl} />
       )}
 
-      <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-7">
+      <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-5">
         <StatCard
           icon={<CursorClickIcon className="h-4.5 w-4.5" />}
           label="Total Clicks"
@@ -78,7 +78,7 @@ export default async function DashboardPage() {
               : { percent: clicksDelta, goodDirection: "up" }
           }
         />
-        <StatCard
+        {/* <StatCard
           icon={<CheckCircleIcon className="h-4.5 w-4.5" />}
           label="Total Booked"
           value={funnel.totalBooked.toLocaleString()}
@@ -91,7 +91,7 @@ export default async function DashboardPage() {
           value={funnel.totalPaid.toLocaleString()}
           sub="invoices paid"
           tone="green"
-        />
+        /> */}
         <StatCard
           icon={<UsersIcon className="h-4.5 w-4.5" />}
           label="Total Referrals"

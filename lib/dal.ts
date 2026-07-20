@@ -23,7 +23,9 @@ export const getProfile = cache(async () => {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("first_name, last_name, phone, referral_code, ghl_contact_id, referred_by")
+    .select(
+      "first_name, last_name, phone, referral_code, ghl_contact_id, referred_by, is_admin"
+    )
     .eq("id", user.id)
     .single();
 
@@ -242,12 +244,10 @@ export const canBookAppointment = cache(async () => {
 // whether the navbar shows an "Admin" link), so unlike verifySession()
 // it must not throw regular users out. The hard gate for /admin itself
 // lives in lib/admin-dal.ts's verifyAdmin(), which calls this.
+//
+// Backed by profiles.is_admin (supabase/009_admin_roles.sql), not the old
+// ADMIN_EMAILS env var — an admin promotes others from /admin itself now.
 export const isAdminUser = cache(async () => {
-  const user = await verifySession();
-  const adminEmails = (process.env.ADMIN_EMAILS ?? "")
-    .split(",")
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean);
-
-  return !!user.email && adminEmails.includes(user.email.toLowerCase());
+  const profile = await getProfile();
+  return !!profile?.is_admin;
 });

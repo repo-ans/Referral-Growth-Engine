@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { setAdminStatus } from "@/lib/actions/admin";
 import { SearchIcon, ChevronLeftIcon, ChevronRightIcon } from "@/components/dashboard/icons";
 
 type DirectoryRow = {
@@ -12,6 +13,7 @@ type DirectoryRow = {
   partnerTier: "bronze" | "silver" | "gold" | null;
   partnerStatus: "active" | "inactive" | null;
   bookedAt: string | null;
+  isAdmin: boolean;
 };
 
 const PAGE_SIZE = 15;
@@ -22,20 +24,29 @@ const TIER_CLASSES: Record<string, string> = {
   gold: "bg-yellow-50 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-400",
 };
 
-export function DirectoryTable({ rows }: { rows: DirectoryRow[] }) {
+export function DirectoryTable({
+  rows,
+  currentUserId,
+}: {
+  rows: DirectoryRow[];
+  currentUserId: string;
+}) {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [localRows, setLocalRows] = useState(rows);
+  const [pendingId, setPendingId] = useState<string | null>(null);
+  const [rowError, setRowError] = useState<{ id: string; message: string } | null>(null);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (q === "") return rows;
-    return rows.filter(
+    if (q === "") return localRows;
+    return localRows.filter(
       (r) =>
         r.name.toLowerCase().includes(q) ||
         (r.phone ?? "").toLowerCase().includes(q) ||
         (r.referredByName ?? "").toLowerCase().includes(q)
     );
-  }, [rows, search]);
+  }, [localRows, search]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -47,6 +58,21 @@ export function DirectoryTable({ rows }: { rows: DirectoryRow[] }) {
   function updateSearch(next: string) {
     setSearch(next);
     setPage(1);
+  }
+
+  async function toggleAdmin(row: DirectoryRow) {
+    setRowError(null);
+    setPendingId(row.id);
+    const result = await setAdminStatus(row.id, !row.isAdmin);
+    setPendingId(null);
+
+    if (!result.ok) {
+      setRowError({ id: row.id, message: result.error });
+      return;
+    }
+    setLocalRows((prev) =>
+      prev.map((r) => (r.id === row.id ? { ...r, isAdmin: !r.isAdmin } : r))
+    );
   }
 
   const rangeStart = filtered.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1;
@@ -89,12 +115,13 @@ export function DirectoryTable({ rows }: { rows: DirectoryRow[] }) {
               <th className="px-4 py-2 font-medium">Referred by</th>
               <th className="px-4 py-2 font-medium">Partner</th>
               <th className="px-4 py-2 font-medium">Booked</th>
+              <th className="px-4 py-2 font-medium">Admin</th>
             </tr>
           </thead>
           <tbody>
             {pageRows.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-zinc-400">
+                <td colSpan={7} className="px-4 py-6 text-center text-zinc-400">
                   No users match your search.
                 </td>
               </tr>
@@ -104,7 +131,12 @@ export function DirectoryTable({ rows }: { rows: DirectoryRow[] }) {
                   key={r.id}
                   className="border-b border-zinc-100 last:border-0 dark:border-zinc-900"
                 >
-                  <td className="px-4 py-2.5 font-medium">{r.name}</td>
+                  <td className="px-4 py-2.5 font-medium">
+                    {r.name}
+                    {r.id === currentUserId && (
+                      <span className="ml-1.5 text-xs font-normal text-zinc-400">(you)</span>
+                    )}
+                  </td>
                   <td className="px-4 py-2.5 text-zinc-500">{r.phone ?? "—"}</td>
                   <td className="px-4 py-2.5 text-zinc-500">
                     {new Date(r.signedUpAt).toLocaleDateString(undefined, {
@@ -138,6 +170,28 @@ export function DirectoryTable({ rows }: { rows: DirectoryRow[] }) {
                           day: "numeric",
                         })
                       : "—"}
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <button
+                      type="button"
+                      disabled={pendingId === r.id || (r.id === currentUserId && r.isAdmin)}
+                      onClick={() => toggleAdmin(r)}
+                      className={
+                        "rounded-full px-2.5 py-1 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 " +
+                        (r.isAdmin
+                          ? "bg-teal-50 text-teal-700 hover:bg-red-50 hover:text-red-700 dark:bg-teal-950 dark:text-teal-400"
+                          : "bg-zinc-100 text-zinc-600 hover:bg-orange-50 hover:text-orange-700 dark:bg-zinc-800 dark:text-zinc-300")
+                      }
+                    >
+                      {pendingId === r.id
+                        ? "Saving…"
+                        : r.isAdmin
+                          ? "Admin"
+                          : "Make admin"}
+                    </button>
+                    {rowError?.id === r.id && (
+                      <p className="mt-1 text-xs text-red-600">{rowError.message}</p>
+                    )}
                   </td>
                 </tr>
               ))

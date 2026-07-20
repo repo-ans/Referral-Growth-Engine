@@ -4,10 +4,10 @@ import { redirect } from "next/navigation";
 import { isAdminUser } from "@/lib/dal";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-// Hard gate for /admin — redirects anyone not on ADMIN_EMAILS straight
-// back to /dashboard. isAdminUser() itself never redirects (the navbar
-// needs a plain boolean for every user), so this is the one place that
-// actually enforces access.
+// Hard gate for /admin — redirects anyone whose profiles.is_admin isn't
+// true straight back to /dashboard. isAdminUser() itself never redirects
+// (the navbar needs a plain boolean for every user), so this is the one
+// place that actually enforces access.
 export const verifyAdmin = cache(async () => {
   const isAdmin = await isAdminUser();
   if (!isAdmin) redirect("/dashboard");
@@ -20,6 +20,7 @@ type AdminProfile = {
   phone: string | null;
   referred_by: string | null;
   created_at: string;
+  is_admin: boolean;
 };
 
 type AdminPartner = {
@@ -48,7 +49,7 @@ export const getAdminOverview = cache(async () => {
   const [profilesRes, partnersRes, appointmentsRes, commissionsRes] = await Promise.all([
     admin
       .from("profiles")
-      .select("id, first_name, last_name, phone, referred_by, created_at")
+      .select("id, first_name, last_name, phone, referred_by, created_at, is_admin")
       .order("created_at", { ascending: false }),
     admin.from("partners").select("id, tier, status"),
     admin.from("service_appointments").select("profile_id, start_time"),
@@ -78,6 +79,7 @@ export const getAdminOverview = cache(async () => {
       partnerTier: partner?.tier ?? null,
       partnerStatus: partner?.status ?? null,
       bookedAt: appointment?.start_time ?? null,
+      isAdmin: p.is_admin,
     };
   });
 
