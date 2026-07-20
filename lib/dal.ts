@@ -209,6 +209,19 @@ export const getAppointment = cache(async () => {
   return data as { id: number; start_time: string } | null;
 });
 
+// How many of the people THIS user referred have completed a booking —
+// via get_my_referral_bookings_count() (supabase/008_referral_bookings.sql),
+// a security definer function for the same reason get_my_referrals() is:
+// profiles RLS only allows auth.uid() = id, so a plain query for "profiles
+// where referred_by = me" isn't possible from the client.
+export const getReferralBookingsCount = cache(async () => {
+  await verifySession();
+  const supabase = await createClient();
+
+  const { data } = await supabase.rpc("get_my_referral_bookings_count");
+  return (data as number | null) ?? 0;
+});
+
 // Booking is opt-in, not gated — this only decides whether the navbar's
 // "Book Appointment" button shows: anyone who came through a referral
 // link (referred_by set), regardless of is_partner. That flag only means
