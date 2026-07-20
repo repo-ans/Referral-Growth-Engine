@@ -14,6 +14,9 @@ export function SignupForm({ referralCode }: { referralCode?: string }) {
     undefined
   );
 
+  console.log(state, 'state');
+  
+
   return (
     <form action={action} className="mt-6 flex flex-col gap-4">
       {referralCode && (

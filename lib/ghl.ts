@@ -20,6 +20,7 @@ import "server-only";
 
 const GHL_BASE_URL = "https://services.leadconnectorhq.com";
 const GHL_API_VERSION = "2021-07-28";
+const GHL_TIMEZONE = "America/Chicago";
 
 type GhlContact = { id: string; [key: string]: unknown };
 
@@ -40,6 +41,14 @@ function locationId() {
   const id = process.env.GHL_LOCATION_ID;
   if (!id) {
     throw new Error("GHL_LOCATION_ID is not set");
+  }
+  return id;
+}
+
+function calendarId() {
+  const id = process.env.GHL_CALENDAR_ID;
+  if (!id) {
+    throw new Error("GHL_CALENDAR_ID is not set");
   }
   return id;
 }
@@ -114,4 +123,118 @@ export async function resolveGhlContactId(input: {
 
   const created = await createGhlContact(input);
   return { contactId: created.id, isExistingContact: false };
+}
+
+// ---------------------------------------------------------------------
+// Post-signup appointment booking (app/book). Ports index.html's
+// prototype logic (freeSlots/bookGHL) server-side so the private
+// integration token never reaches the browser.
+
+// GHL's free-slots endpoint wants a day window in Unix ms, padded a day
+// on each side (mirrors index.html's freeSlots()) so timezone rounding
+// at the query boundary never hides a slot that belongs to `dateISO`.
+export async function getFreeSlots(dateISO: string): Promise<string[]> {
+  const base = new Date(`${dateISO}T00:00:00Z`);
+  const start = new Date(base);
+  start.setUTCDate(start.getUTCDate() - 1);
+  const end = new Date(base);
+  end.setUTCDate(end.getUTCDate() + 1);
+
+  const url = new URL(`${GHL_BASE_URL}/calendars/${calendarId()}/free-slots`);
+  url.searchParams.set("startDate", String(start.getTime()));
+  url.searchParams.set("endDate", String(end.getTime()));
+  url.searchParams.set("timezone", GHL_TIMEZONE);
+
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${process.env.GHL_PRIVATE_INTEGRATION_TOKEN}`,
+      Version: GHL_API_VERSION,
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error(`GHL free-slots failed: ${res.status} ${await res.text()}`);
+  }
+
+  const data = await res.json();
+
+  // Response shape: { "<dateISO>": { slots: ["...iso"] }, traceId: "..." }.
+  // Defensive fallbacks mirror index.html's freeSlots() — GHL's own docs
+  // don't fully pin this shape down.
+  if (data?.[dateISO]?.slots && Array.isArray(data[dateISO].slots)) {
+    return data[dateISO].slots as string[];
+  }
+  if (Array.isArray(data)) {
+    return data as string[];
+  }
+  const dateKey = Object.keys(data ?? {}).find(
+    (key) => /^\d{4}-\d{2}-\d{2}$/.test(key) && Array.isArray(data[key]?.slots)
+  );
+  return dateKey ? (data[dateKey].slots as string[]) : [];
+}
+
+// Best-effort sync of the address/tags collected at booking time onto
+// the GHL contact created at signup. Failures are logged and swallowed
+// by the caller — the appointment's `notes` field carries the address
+// regardless, so this isn't load-bearing for the booking itself.
+export async function updateGhlContactDetails(input: {
+  contactId: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  postalCode: string;
+  tags: string[];
+}): Promise<void> {
+  const res = await fetch(`${GHL_BASE_URL}/contacts/${input.contactId}`, {
+    method: "PUT",
+    headers: ghlHeaders(),
+    body: JSON.stringify({
+      address1: input.address || undefined,
+      city: input.city || undefined,
+      state: input.state || undefined,
+      postalCode: input.postalCode,
+      tags: input.tags,
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`GHL update contact failed: ${res.status} ${await res.text()}`);
+  }
+}
+
+export async function bookGhlAppointment(input: {
+  contactId: string;
+  startTime: string;
+  endTime: string;
+  title: string;
+  notes: string;
+}): Promise<{ id: string }> {
+  // Keep GHL's own offset (e.g. "-05:00") from the free-slots response
+  // rather than also sending `timezone` — the two conflict in GHL's API
+  // when both are present, same caveat index.html's bookGHL() works around.
+  const hasOffset = /([+-]\d{2}:\d{2}|Z)$/.test(input.startTime);
+
+  const res = await fetch(`${GHL_BASE_URL}/calendars/events/appointments`, {
+    method: "POST",
+    headers: ghlHeaders(),
+    body: JSON.stringify({
+      calendarId: calendarId(),
+      locationId: locationId(),
+      contactId: input.contactId,
+      startTime: input.startTime,
+      endTime: input.endTime,
+      title: input.title,
+      appointmentStatus: "confirmed",
+      notes: input.notes,
+      ...(hasOffset ? {} : { timezone: GHL_TIMEZONE }),
+    }),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(`GHL book appointment failed: ${res.status} ${JSON.stringify(data)}`);
+  }
+
+  return { id: data.id as string };
 }

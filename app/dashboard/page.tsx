@@ -24,9 +24,9 @@ import {
 
 export default async function DashboardPage() {
   const profile = await getProfile();
+  const partner = await getPartner();
   const stats = await getReferralStats();
   const funnel = await getFunnelStats();
-  const partner = await getPartner();
   const earnings = partner ? await getEarnings() : null;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
   const referralUrl = profile?.ghl_contact_id

@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { resolveGhlContactId } from "@/lib/ghl";
 import {
@@ -51,11 +52,23 @@ export async function signup(
 
   const supabase = await createClient();
 
+  // Derived from the actual incoming request, not NEXT_PUBLIC_SITE_URL:
+  // Supabase's confirmation is PKCE-based, so the code verifier cookie is
+  // scoped to whatever origin the signup happened on. Redirecting the
+  // confirmation link to a fixed (e.g. production) URL when someone signs
+  // up on localhost sends them to a different origin than the cookie is
+  // on, and exchangeCodeForSession() fails with confirmation-failed.
+  const headersList = await headers();
+  const host = headersList.get("host");
+  const protocol =
+    headersList.get("x-forwarded-proto") ?? (host?.startsWith("localhost") ? "http" : "https");
+  const origin = `${protocol}://${host}`;
+
   const { error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm`,
+      emailRedirectTo: `${origin}/auth/confirm`,
       data: {
         first_name: firstName,
         last_name: lastName,
@@ -68,7 +81,8 @@ export async function signup(
   });
 
   if (error) {
-    return { message: error.message };
+    console.error("Supabase signUp error:", error.status, error.code, error.message, error);
+    return { message: error.message || "Sign up failed. Please try again." };
   }
 
   redirect("/register/check-email");

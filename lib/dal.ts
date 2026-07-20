@@ -23,7 +23,7 @@ export const getProfile = cache(async () => {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("first_name, last_name, referral_code, ghl_contact_id")
+    .select("first_name, last_name, phone, referral_code, ghl_contact_id, referred_by")
     .eq("id", user.id)
     .single();
 
@@ -190,4 +190,51 @@ export const getEarnings = cache(async () => {
     paid: sumByStatus("paid"),
     commissions,
   };
+});
+
+// Whether the current user has already been through the post-signup
+// booking form (app/book). Deliberately its own table (service_appointments,
+// not appointments — this project already has an unrelated appointments
+// table), not counted by any stat above — see supabase/007_service_appointments.sql.
+export const getAppointment = cache(async () => {
+  const user = await verifySession();
+  const supabase = await createClient();
+
+  const { data } = await supabase
+    .from("service_appointments")
+    .select("id, start_time")
+    .eq("profile_id", user.id)
+    .maybeSingle();
+
+  return data as { id: number; start_time: string } | null;
+});
+
+// Booking is opt-in, not gated — this only decides whether the navbar's
+// "Book Appointment" button shows: anyone who came through a referral
+// link (referred_by set), regardless of is_partner. That flag only means
+// GHL already had a contact matching their phone/email at signup — a
+// weak, incidental signal (e.g. an old marketing lead) that shouldn't
+// override the explicit "A referred me for service" signal and silently
+// lock a genuine customer out of booking. A true partner who happens to
+// sign up via another partner's link just sees a harmless extra button.
+export const canBookAppointment = cache(async () => {
+  const profile = await getProfile();
+  if (!profile?.referred_by) return false;
+
+  const appointment = await getAppointment();
+  return !appointment;
+});
+
+// Non-redirecting check — every dashboard load hits this (to decide
+// whether the navbar shows an "Admin" link), so unlike verifySession()
+// it must not throw regular users out. The hard gate for /admin itself
+// lives in lib/admin-dal.ts's verifyAdmin(), which calls this.
+export const isAdminUser = cache(async () => {
+  const user = await verifySession();
+  const adminEmails = (process.env.ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+
+  return !!user.email && adminEmails.includes(user.email.toLowerCase());
 });

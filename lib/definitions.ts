@@ -43,3 +43,42 @@ export type LoginFormState =
       message?: string;
     }
   | undefined;
+
+// Service types mirror index.html's 8-option grid; job_type in
+// supabase/003_commission_engine.sql is unrelated (that's the n8n
+// commission engine's own category, not this form's).
+export const SERVICE_TYPES = [
+  "AC Repair",
+  "New AC Unit",
+  "Heating / Furnace",
+  "Tune-Up / Maintenance",
+  "Heat Pump",
+  "Air Quality",
+  "Emergency",
+  "Other / Not Sure",
+] as const;
+
+export const URGENCY_LEVELS = ["emergency", "today", "this-week", "flexible"] as const;
+
+export const BookingFormSchema = z.object({
+  serviceType: z.enum(SERVICE_TYPES, { error: "Please select a service type." }),
+  urgency: z.enum(URGENCY_LEVELS, { error: "Please select an urgency." }),
+  address: z.string().trim().optional(),
+  city: z.string().trim().optional(),
+  state: z.string().trim().optional(),
+  postalCode: z.string().trim().min(1, { error: "ZIP code is required." }),
+  notes: z.string().trim().optional(),
+  startTime: z.string().min(1, { error: "Please pick a time slot." }),
+  endTime: z.string().min(1, { error: "Please pick a time slot." }),
+  smsConsent: z.literal(true, { error: "Please accept to continue." }),
+  marketingConsent: z.literal(true, { error: "Please accept to continue." }),
+});
+
+export type BookingFormInput = z.infer<typeof BookingFormSchema>;
+
+export type BookingFormState =
+  | {
+      errors?: Partial<Record<keyof BookingFormInput, string[]>>;
+      message?: string;
+    }
+  | undefined;
