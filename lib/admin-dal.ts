@@ -31,10 +31,21 @@ type AdminPartner = {
 
 type AdminAppointment = { profile_id: string; start_time: string };
 
+type AdminReferral = {
+  id: number;
+  job_type: "new_install" | "repair_maintenance" | "customer_referral";
+};
+
 type AdminCommission = {
+  id: number;
+  referral_id: number;
   partner_id: string;
-  status: "pending" | "approved" | "paid" | "clawed_back";
+  base_amount: number;
   commission_amount: number;
+  tier_multiplier: number;
+  status: "pending" | "approved" | "paid" | "clawed_back";
+  payout_date: string | null;
+  created_at: string;
 };
 
 // Everything /admin needs, fetched with the service-role client (bypasses
@@ -46,15 +57,22 @@ export const getAdminOverview = cache(async () => {
   await verifyAdmin();
   const admin = createAdminClient();
 
-  const [profilesRes, partnersRes, appointmentsRes, commissionsRes] = await Promise.all([
-    admin
-      .from("profiles")
-      .select("id, first_name, last_name, phone, referred_by, created_at, is_admin")
-      .order("created_at", { ascending: false }),
-    admin.from("partners").select("id, tier, status"),
-    admin.from("service_appointments").select("profile_id, start_time"),
-    admin.from("commissions").select("partner_id, status, commission_amount"),
-  ]);
+  const [profilesRes, partnersRes, appointmentsRes, referralsRes, commissionsRes] =
+    await Promise.all([
+      admin
+        .from("profiles")
+        .select("id, first_name, last_name, phone, referred_by, created_at, is_admin")
+        .order("created_at", { ascending: false }),
+      admin.from("partners").select("id, tier, status"),
+      admin.from("service_appointments").select("profile_id, start_time"),
+      admin.from("referrals").select("id, job_type"),
+      admin
+        .from("commissions")
+        .select(
+          "id, referral_id, partner_id, base_amount, commission_amount, tier_multiplier, status, payout_date, created_at"
+        )
+        .order("created_at", { ascending: false }),
+    ]);
 
   const profiles = (profilesRes.data ?? []) as AdminProfile[];
   const profileById = new Map(profiles.map((p) => [p.id, p]));
@@ -63,6 +81,9 @@ export const getAdminOverview = cache(async () => {
   );
   const appointmentByProfile = new Map(
     ((appointmentsRes.data ?? []) as AdminAppointment[]).map((a) => [a.profile_id, a])
+  );
+  const referralById = new Map(
+    ((referralsRes.data ?? []) as AdminReferral[]).map((r) => [r.id, r])
   );
 
   const directory = profiles.map((p) => {
@@ -92,6 +113,23 @@ export const getAdminOverview = cache(async () => {
     commissionTotals.set(c.partner_id, entry);
   }
 
+  const commissions = ((commissionsRes.data ?? []) as AdminCommission[]).map((c) => {
+    const profile = profileById.get(c.partner_id);
+    const referral = referralById.get(c.referral_id);
+
+    return {
+      id: c.id,
+      partnerName: profile ? `${profile.first_name} ${profile.last_name}` : "Unknown",
+      jobType: referral?.job_type ?? "unknown",
+      baseAmount: Number(c.base_amount),
+      commissionAmount: Number(c.commission_amount),
+      tierMultiplier: Number(c.tier_multiplier),
+      status: c.status,
+      payoutDate: c.payout_date,
+      createdAt: c.created_at,
+    };
+  });
+
   const partners = ((partnersRes.data ?? []) as AdminPartner[]).map((partner) => {
     const profile = profileById.get(partner.id);
     const totals = commissionTotals.get(partner.id) ?? { pending: 0, approved: 0, paid: 0 };
@@ -108,6 +146,7 @@ export const getAdminOverview = cache(async () => {
   return {
     directory,
     partners,
+    commissions,
     totals: {
       totalUsers: profiles.length,
       totalPartners: partners.length,

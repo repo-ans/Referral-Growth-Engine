@@ -37,3 +37,32 @@ export async function setAdminStatus(
   revalidatePath("/dashboard");
   return { ok: true };
 }
+
+export type CommissionStatus = "pending" | "approved" | "paid" | "clawed_back";
+export type SetCommissionStatusResult = { ok: true } | { ok: false; error: string };
+
+export async function setCommissionStatus(
+  commissionId: number,
+  nextStatus: CommissionStatus
+): Promise<SetCommissionStatusResult> {
+  if (!(await isAdminUser())) {
+    return { ok: false, error: "Not authorized." };
+  }
+
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("commissions")
+    .update({
+      status: nextStatus,
+      payout_date: nextStatus === "paid" ? new Date().toISOString() : null,
+    })
+    .eq("id", commissionId);
+
+  if (error) {
+    return { ok: false, error: error.message };
+  }
+
+  revalidatePath("/admin");
+  revalidatePath("/dashboard");
+  return { ok: true };
+}

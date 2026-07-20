@@ -3,6 +3,7 @@ import { verifySession } from "@/lib/dal";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { DirectoryTable } from "@/components/admin/directory-table";
 import { PartnersTable } from "@/components/admin/partners-table";
+import { CommissionsTable } from "@/components/admin/commissions-table";
 import {
   UsersIcon,
   CheckCircleIcon,
@@ -12,7 +13,7 @@ import {
 
 export default async function AdminPage() {
   const user = await verifySession();
-  const { directory, partners, totals } = await getAdminOverview();
+  const { directory, partners, commissions, totals } = await getAdminOverview();
 
   return (
     <div className="mx-auto w-full max-w-6xl flex-1 px-6 py-8">
@@ -59,6 +60,10 @@ export default async function AdminPage() {
 
       <div className="mt-6">
         <PartnersTable partners={partners} />
+      </div>
+
+      <div className="mt-6">
+        <CommissionsTable commissions={commissions} />
       </div>
     </div>
   );
