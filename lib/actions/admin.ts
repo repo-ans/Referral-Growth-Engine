@@ -50,12 +50,19 @@ export async function setCommissionStatus(
   }
 
   const admin = createAdminClient();
+  // payout_date is only ever set, never cleared — a commission clawed back
+  // after being paid should still show when it was originally paid, not
+  // lose that history.
+  const update: { status: CommissionStatus; payout_date?: string } = {
+    status: nextStatus,
+  };
+  if (nextStatus === "paid") {
+    update.payout_date = new Date().toISOString();
+  }
+
   const { error } = await admin
     .from("commissions")
-    .update({
-      status: nextStatus,
-      payout_date: nextStatus === "paid" ? new Date().toISOString() : null,
-    })
+    .update(update)
     .eq("id", commissionId);
 
   if (error) {

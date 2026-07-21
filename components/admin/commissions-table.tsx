@@ -36,11 +36,7 @@ export function CommissionsTable({ commissions }: { commissions: CommissionRow[]
   const [pendingId, setPendingId] = useState<number | null>(null);
   const [rowError, setRowError] = useState<{ id: number; message: string } | null>(null);
 
-  async function advance(row: CommissionRow) {
-    const nextStatus: CommissionStatus | null =
-      row.status === "pending" ? "approved" : row.status === "approved" ? "paid" : null;
-    if (!nextStatus) return;
-
+  async function transition(row: CommissionRow, nextStatus: CommissionStatus) {
     setRowError(null);
     setPendingId(row.id);
     const result = await setCommissionStatus(row.id, nextStatus);
@@ -53,10 +49,28 @@ export function CommissionsTable({ commissions }: { commissions: CommissionRow[]
     setLocalRows((prev) =>
       prev.map((r) =>
         r.id === row.id
-          ? { ...r, status: nextStatus, payoutDate: nextStatus === "paid" ? new Date().toISOString() : r.payoutDate }
+          ? {
+              ...r,
+              status: nextStatus,
+              payoutDate: nextStatus === "paid" ? new Date().toISOString() : r.payoutDate,
+            }
           : r
       )
     );
+  }
+
+  function advance(row: CommissionRow) {
+    const nextStatus: CommissionStatus | null =
+      row.status === "pending" ? "approved" : row.status === "approved" ? "paid" : null;
+    if (!nextStatus) return;
+    transition(row, nextStatus);
+  }
+
+  function clawBack(row: CommissionRow) {
+    if (!confirm(`Claw back this $${row.commissionAmount} commission from ${row.partnerName}?`)) {
+      return;
+    }
+    transition(row, "clawed_back");
   }
 
   return (
@@ -127,22 +141,35 @@ export function CommissionsTable({ commissions }: { commissions: CommissionRow[]
                       : "—"}
                   </td>
                   <td className="px-4 py-2.5">
-                    {r.status === "pending" || r.status === "approved" ? (
-                      <button
-                        type="button"
-                        disabled={pendingId === r.id}
-                        onClick={() => advance(r)}
-                        className="rounded-md bg-orange-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        {pendingId === r.id
-                          ? "Saving…"
-                          : r.status === "pending"
-                            ? "Approve"
-                            : "Mark Paid"}
-                      </button>
-                    ) : (
-                      <span className="text-zinc-400">—</span>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {(r.status === "pending" || r.status === "approved") && (
+                        <button
+                          type="button"
+                          disabled={pendingId === r.id}
+                          onClick={() => advance(r)}
+                          className="rounded-md bg-orange-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {pendingId === r.id
+                            ? "Saving…"
+                            : r.status === "pending"
+                              ? "Approve"
+                              : "Mark Paid"}
+                        </button>
+                      )}
+                      {r.status !== "clawed_back" && (
+                        <button
+                          type="button"
+                          disabled={pendingId === r.id}
+                          onClick={() => clawBack(r)}
+                          className="rounded-md border border-red-200 px-2.5 py-1 text-xs font-semibold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950/30"
+                        >
+                          Claw back
+                        </button>
+                      )}
+                      {r.status === "clawed_back" && (
+                        <span className="text-zinc-400">—</span>
+                      )}
+                    </div>
                     {rowError?.id === r.id && (
                       <p className="mt-1 text-xs text-red-600">{rowError.message}</p>
                     )}
