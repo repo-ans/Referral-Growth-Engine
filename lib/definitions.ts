@@ -82,3 +82,29 @@ export type BookingFormState =
       message?: string;
     }
   | undefined;
+
+// For the public, no-account booking form (app/refer/[code]) — same
+// fields as BookingFormSchema, plus the identity fields a logged-in
+// profile would otherwise have supplied, plus the referral code so the
+// server action can re-resolve the referring partner itself (never
+// trusted from the client alone).
+export const CustomerBookingFormSchema = z.object({
+  code: z.string().min(1, { error: "Missing referral code." }),
+  firstName: z.string().min(1, { error: "First name is required." }).trim(),
+  lastName: z.string().min(1, { error: "Last name is required." }).trim(),
+  phone: z.string().min(6, { error: "Please enter a valid phone number." }).trim(),
+  email: z.email({ error: "Please enter a valid email." }).trim(),
+  serviceType: z.enum(SERVICE_TYPES, { error: "Please select a service type." }),
+  urgency: z.enum(URGENCY_LEVELS, { error: "Please select an urgency." }),
+  address: z.string().trim().optional(),
+  city: z.string().trim().optional(),
+  state: z.string().trim().optional(),
+  postalCode: z.string().trim().min(1, { error: "ZIP code is required." }),
+  notes: z.string().trim().optional(),
+  startTime: z.string().min(1, { error: "Please pick a time slot." }),
+  endTime: z.string().min(1, { error: "Please pick a time slot." }),
+  smsConsent: z.literal(true, { error: "Please accept to continue." }),
+  marketingConsent: z.literal(true, { error: "Please accept to continue." }),
+});
+
+export type CustomerBookingFormInput = z.infer<typeof CustomerBookingFormSchema>;

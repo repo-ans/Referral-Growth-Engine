@@ -36,6 +36,18 @@ type AdminReferral = {
   job_type: "new_install" | "repair_maintenance" | "customer_referral";
 };
 
+type AdminCustomer = {
+  id: number;
+  referred_by: string;
+  first_name: string;
+  last_name: string;
+  phone: string;
+  email: string;
+  service_type: string;
+  start_time: string;
+  created_at: string;
+};
+
 type AdminCommission = {
   id: number;
   referral_id: number;
@@ -57,7 +69,7 @@ export const getAdminOverview = cache(async () => {
   await verifyAdmin();
   const admin = createAdminClient();
 
-  const [profilesRes, partnersRes, appointmentsRes, referralsRes, commissionsRes] =
+  const [profilesRes, partnersRes, appointmentsRes, referralsRes, commissionsRes, customersRes] =
     await Promise.all([
       admin
         .from("profiles")
@@ -71,6 +83,10 @@ export const getAdminOverview = cache(async () => {
         .select(
           "id, referral_id, partner_id, base_amount, commission_amount, tier_multiplier, status, payout_date, created_at"
         )
+        .order("created_at", { ascending: false }),
+      admin
+        .from("customers")
+        .select("id, referred_by, first_name, last_name, phone, email, service_type, start_time, created_at")
         .order("created_at", { ascending: false }),
     ]);
 
@@ -130,6 +146,21 @@ export const getAdminOverview = cache(async () => {
     };
   });
 
+  const customers = ((customersRes.data ?? []) as AdminCustomer[]).map((c) => {
+    const referrer = profileById.get(c.referred_by);
+
+    return {
+      id: c.id,
+      name: `${c.first_name} ${c.last_name}`,
+      phone: c.phone,
+      email: c.email,
+      serviceType: c.service_type,
+      bookedAt: c.start_time,
+      referredByName: referrer ? `${referrer.first_name} ${referrer.last_name}` : "Unknown",
+      createdAt: c.created_at,
+    };
+  });
+
   const partners = ((partnersRes.data ?? []) as AdminPartner[]).map((partner) => {
     const profile = profileById.get(partner.id);
     const totals = commissionTotals.get(partner.id) ?? { pending: 0, approved: 0, paid: 0 };
@@ -147,10 +178,12 @@ export const getAdminOverview = cache(async () => {
     directory,
     partners,
     commissions,
+    customers,
     totals: {
       totalUsers: profiles.length,
       totalPartners: partners.length,
       totalBookings: appointmentByProfile.size,
+      totalCustomers: customers.length,
       totalCommissionPaid: partners.reduce((sum, p) => sum + p.paid, 0),
     },
   };

@@ -68,12 +68,18 @@ export const getReferralStats = cache(async () => {
 
   const supabase = await createClient();
 
+  // "Referrals" here means customers booked through this partner's link
+  // (public.customers, supabase/012_customers_table.sql) — the commission-
+  // relevant metric — not partners referred into the program via
+  // /register?ref=. get_my_referrals() (002_referral_stats.sql) still
+  // exists and still works for that partner-to-partner case; it's just no
+  // longer what the headline dashboard number reflects.
   const [clicksResult, referralsResult] = await Promise.all([
     supabase
       .from("referral_clicks")
       .select("clicked_at")
       .eq("ghl_contact_id", profile.ghl_contact_id),
-    supabase.rpc("get_my_referrals"),
+    supabase.rpc("get_my_customers"),
   ]);
 
   const clickTimestamps = (clicksResult.data ?? []).map((c) => c.clicked_at as string);
