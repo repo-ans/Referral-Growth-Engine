@@ -236,5 +236,9 @@ export async function bookGhlAppointment(input: {
     throw new Error(`GHL book appointment failed: ${res.status} ${JSON.stringify(data)}`);
   }
 
+  console.log(
+    `GHL appointment booked: id=${data.id} calendarId=${calendarId()} contactId=${input.contactId} startTime=${input.startTime}`
+  );
+
   return { id: data.id as string };
 }

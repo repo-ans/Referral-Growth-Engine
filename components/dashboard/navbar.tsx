@@ -27,7 +27,7 @@ export function Navbar({
           {isAdmin && (
             <Link
               href="/admin"
-              className="rounded-md px-3 py-1.5 text-sm font-medium text-slate-500 hover:text-slate-900 hover:bg-white transition-colors"
+              className="mt-3 flex cursor-pointer items-center gap-1.5 rounded-md bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-700"
             >
               Admin
             </Link>
