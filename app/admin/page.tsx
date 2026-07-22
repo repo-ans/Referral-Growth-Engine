@@ -18,7 +18,7 @@ export default async function AdminPage() {
 
   return (
     <div className="mx-auto w-full max-w-6xl flex-1 px-6 py-8">
-      <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+      <h1 className="text-2xl font-black text-slate-900 tracking-tight dark:text-slate-100">
         Admin Overview
       </h1>
       <p className="mt-0.5 text-sm text-zinc-500">

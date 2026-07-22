@@ -111,7 +111,7 @@ export function ReferralLinkReveal({
               type="button"
               onClick={handleCopy}
               aria-label="Copy referral link"
-              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 shadow-sm transition-all active:scale-95 cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 shadow-sm transition-all active:scale-95 cursor-pointer dark:bg-zinc-900 dark:border-zinc-700 dark:text-slate-200 dark:hover:bg-zinc-800"
             >
               {copied ? (
                 <CheckIcon className="h-4 w-4 text-green-600" />
@@ -129,7 +129,7 @@ export function ReferralLinkReveal({
             <a
               href={qrCodeDataUrl}
               download="referral-qr-code.png"
-              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 shadow-sm transition-all active:scale-95 cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 shadow-sm transition-all active:scale-95 cursor-pointer dark:bg-zinc-900 dark:border-zinc-700 dark:text-slate-200 dark:hover:bg-zinc-800"
             >
               <DownloadIcon className="h-3.5 w-3.5" />
               Download QR code
@@ -139,7 +139,7 @@ export function ReferralLinkReveal({
               <button
                 type="button"
                 onClick={handleShare}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 shadow-sm transition-all active:scale-95 cursor-pointer"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 shadow-sm transition-all active:scale-95 cursor-pointer dark:bg-zinc-900 dark:border-zinc-700 dark:text-slate-200 dark:hover:bg-zinc-800"
               >
                 <ShareIcon className="h-3.5 w-3.5" />
                 Share

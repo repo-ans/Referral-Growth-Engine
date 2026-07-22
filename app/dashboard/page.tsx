@@ -49,7 +49,7 @@ export default async function DashboardPage() {
     <div className="mx-auto w-full max-w-6xl flex-1 px-6 py-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight dark:text-slate-100">
             Referral Dashboard
           </h1>
           {profile && (

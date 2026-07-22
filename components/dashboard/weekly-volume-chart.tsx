@@ -21,7 +21,7 @@ export function WeeklyVolumeChart({ data }: { data: WeekPoint[] }) {
   return (
     <div className="rounded-lg border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
       <div className="flex items-center justify-between">
-        <h2 className="font-bold text-slate-900">
+        <h2 className="font-bold text-slate-900 dark:text-slate-100">
           Clicks &amp; Referrals — Weekly Volume
         </h2>
         <div className="flex items-center gap-4">

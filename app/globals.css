@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+/* Manual light/dark toggle (components/theme-toggle.tsx): dark: utility
+   classes respond to a "dark" class on <html> instead of the OS's
+   prefers-color-scheme, so every user can switch it regardless of their
+   system setting. The class is set by an inline script in app/layout.tsx
+   before first paint (defaulting to system preference the first time),
+   and persisted to localStorage after that. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -29,18 +37,16 @@
   --font-sans: var(--font-inter);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --brand-navy: #cbd5e1;
-    --brand-navy-soft: #94a3b8;
-    --brand-orange: #fb923c;
-    --brand-orange-soft: #431407;
-    --brand-teal: #2dd4bf;
-    --chart-clicks: #60a5fa;
-    --chart-referrals: #2dd4bf;
-  }
+:root.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --brand-navy: #cbd5e1;
+  --brand-navy-soft: #94a3b8;
+  --brand-orange: #fb923c;
+  --brand-orange-soft: #431407;
+  --brand-teal: #2dd4bf;
+  --chart-clicks: #60a5fa;
+  --chart-referrals: #2dd4bf;
 }
 
 body {

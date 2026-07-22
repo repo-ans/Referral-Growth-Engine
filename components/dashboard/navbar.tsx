@@ -3,6 +3,7 @@ import { logout } from "@/lib/actions/auth";
 import { LogOutIcon, CalendarIcon } from "./icons";
 import Image from "next/image";
 import logo from '@/public/isael logo.webp'
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function Navbar({
   showBookButton,
@@ -42,6 +43,8 @@ export function Navbar({
               Book Appointment
             </Link>
           )}
+
+          <ThemeToggle />
 
           <form action={logout}>
             <button

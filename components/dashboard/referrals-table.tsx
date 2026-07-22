@@ -88,7 +88,7 @@ export function ReferralsTable({ referrals }: { referrals: Referral[] }) {
           />
         </div>
 
-        <div className="inline-flex flex-wrap gap-1 rounded-full bg-slate-100 p-1">
+        <div className="inline-flex flex-wrap gap-1 rounded-full bg-slate-100 p-1 dark:bg-zinc-800">
           {(Object.keys(FILTER_LABELS) as TimeFilter[]).map((key) => (
             <button
               key={key}
@@ -97,8 +97,8 @@ export function ReferralsTable({ referrals }: { referrals: Referral[] }) {
               className={
                 "cursor-pointer rounded-full px-3 py-1.5 text-sm transition-colors " +
                 (filter === key
-                  ? "bg-white font-semibold text-slate-900 shadow-sm"
-                  : "font-medium text-slate-500 hover:text-slate-700")
+                  ? "bg-white font-semibold text-slate-900 shadow-sm dark:bg-zinc-950 dark:text-slate-100"
+                  : "font-medium text-slate-500 hover:text-slate-700 dark:text-zinc-400 dark:hover:text-zinc-200")
               }
             >
               {FILTER_LABELS[key]}
