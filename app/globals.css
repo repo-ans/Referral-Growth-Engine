@@ -9,6 +9,13 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
+  /* Without this, the browser renders native form-control internals
+     (input text/caret/autofill colors) according to the OS's own
+     prefers-color-scheme, independent of the manual .dark class above —
+     the two can disagree and produce invisible input text in either
+     mode. This pins native rendering to whatever the toggle actually
+     selected. */
+  color-scheme: light;
   --background: #ffffff;
   --foreground: #171717;
 
@@ -38,6 +45,7 @@
 }
 
 :root.dark {
+  color-scheme: dark;
   --background: #0a0a0a;
   --foreground: #ededed;
   --brand-navy: #cbd5e1;

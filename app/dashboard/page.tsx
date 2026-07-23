@@ -5,7 +5,6 @@ import {
   getFunnelStats,
   getPartner,
   getEarnings,
-  getReferralBookingsCount,
 } from "@/lib/dal";
 import { percentDelta } from "@/lib/weekly";
 import { StatCard } from "@/components/dashboard/stat-card";
@@ -28,7 +27,6 @@ export default async function DashboardPage() {
   const partner = await getPartner();
   const stats = await getReferralStats();
   const funnel = await getFunnelStats();
-  const referralBookingsCount = await getReferralBookingsCount();
   const earnings = partner ? await getEarnings() : null;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
   const referralUrl = profile?.ghl_contact_id
@@ -81,7 +79,13 @@ export default async function DashboardPage() {
         <StatCard
           icon={<CheckCircleIcon className="h-4.5 w-4.5" />}
           label="Total Booked"
-          value={funnel.totalBooked.toLocaleString()}
+          // value={funnel.totalBooked.toLocaleString()}
+          value={stats.referralCount.toLocaleString()}
+          delta={
+            referralsDelta === null
+              ? undefined
+              : { percent: referralsDelta, goodDirection: "up" }
+          }
           sub="jobs booked"
           tone="orange"
         />
@@ -107,7 +111,7 @@ export default async function DashboardPage() {
         <StatCard
           icon={<CalendarIcon className="h-4.5 w-4.5" />}
           label="Referred Bookings"
-          value={referralBookingsCount.toLocaleString()}
+          value={stats.referralCount.toLocaleString()}
           sub="of your referrals"
           tone="green"
         />

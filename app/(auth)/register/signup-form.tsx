@@ -15,7 +15,7 @@ import {
 } from "@/components/auth/icons";
 
 const inputClasses =
-  "w-full rounded-md border border-zinc-300 bg-zinc-50 py-2.5 pl-9 pr-3 text-sm outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30";
+  "w-full rounded-md border border-zinc-300 bg-zinc-50 py-2.5 pl-9 pr-3 text-sm text-slate-900 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/30";
 const errorClasses = "mt-1 text-sm text-red-600";
 
 export function SignupForm({ referralCode }: { referralCode?: string }) {
