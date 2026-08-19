@@ -33,15 +33,22 @@ export async function signup(
 
   // Resolve (find-or-create) the GoHighLevel contact before creating the
   // Supabase user: the referral link is keyed off ghl_contact_id, so a
-  // profile can't be useful without one. See lib/ghl.ts. Whether the
-  // contact already existed in GHL is also the partner signal — see
-  // handle_new_user() in supabase/006_partner_detection.sql.
+  // profile can't be useful without one. See lib/ghl.ts.
+  //
+  // Every /register signup is a partner, full stop — this page is only
+  // ever reached by someone trying to join the referral program (referred
+  // customers book anonymously through /refer/[code] instead and never
+  // see this form at all). isExistingContact ("did GHL already know this
+  // phone/email") used to be the partner signal, back when /register also
+  // served referred customers — that's stale now and would incorrectly
+  // gate out anyone whose phone/email GHL hadn't already seen. See
+  // handle_new_user() in supabase/006_partner_detection.sql for the
+  // trigger that actually creates the partners row from this flag.
   let ghlContactId: string;
-  let isPartner: boolean;
+  const isPartner = true;
   try {
     const resolved = await resolveGhlContactId({ firstName, lastName, email, phone });
     ghlContactId = resolved.contactId;
-    isPartner = resolved.isExistingContact;
   } catch (err) {
     console.error("GHL contact resolution failed:", err);
     return {
